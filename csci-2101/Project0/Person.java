@@ -5,11 +5,10 @@ import java.util.ArrayList;
 
 public class Person {
     private String name;
-    private List<Gear> gear;
+    private List<Gear> gear = new ArrayList<Gear>();
 
-    public Person(String n) {
-        name = n;
-        gear = new ArrayList<Gear>();
+    public Person(String name) {
+        this.name = name;
     }
 
     public void exploreAll(List<NaturalFeature> naturalFeatures) {
@@ -18,14 +17,14 @@ public class Person {
         }
     }
 
-    public void addGear(Gear[] gs) {
-        for (Gear g : gs) {
-            addGear(g);
+    public void addGear(Gear[] gearList) {
+        for (Gear gear : gearList) {
+            addGear(gear);
         }
     }
 
-    public void addGear(Gear g) {
-        gear.add(g);
+    public void addGear(Gear gear) {
+        this.gear.add(gear);
     }
 
     public List<Gear> getGear() {

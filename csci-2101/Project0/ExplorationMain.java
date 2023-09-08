@@ -17,7 +17,7 @@ public class ExplorationMain {
         NaturalFeature[] naturalFeatures = {
                 new Cave("Cave 1", new Gear[] { new Headlamp() }),
                 new Cave("Cave 2", new Gear[] { new Headlamp(), new Backpack() }),
-                new Forest("Forest 1", new Gear[0]),
+                new Forest("Forest 1", new Gear[] {}),
                 new Mountain("Mountain 1", new Gear[] { new Backpack() }),
                 new River("River 1", new Gear[] { new Boat() }),
                 new River("River 2", new Gear[] { new Boat(), new Backpack() })

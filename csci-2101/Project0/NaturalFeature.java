@@ -5,28 +5,28 @@ import java.util.ArrayList;
 
 public class NaturalFeature {
     private String name;
-    private Gear[] gearRequirements;
+    private Gear[] gearRequired;
 
-    public NaturalFeature(String n, Gear[] g) {
-        name = n;
-        gearRequirements = g;
+    public NaturalFeature(String name, Gear[] gearRequired) {
+        this.name = name;
+        this.gearRequired = gearRequired;
     }
 
-    public NaturalFeature(String n, Gear g) {
-        name = n;
-        gearRequirements = new Gear[] { g };
+    public NaturalFeature(String name, Gear gearRequired) {
+        this.name = name;
+        this.gearRequired = new Gear[] { gearRequired };
     }
 
-    public String explore(Person p) {
+    public String explore(Person person) {
         String explored = "successfully";
         String verb = "using";
         // converting to ArrayList because all these three variables may be edited
-        ArrayList<Gear> newGearRequirements = new ArrayList<Gear>(Arrays.asList(gearRequirements));
+        ArrayList<Gear> newGearRequired = new ArrayList<Gear>(Arrays.asList(gearRequired));
 
         // checking if the person has the required gear
-        for (Gear gearRequired : gearRequirements) {
+        for (Gear gearRequired : gearRequired) {
             boolean requirementMet = false;
-            for (Gear gear : p.getGear()) {
+            for (Gear gear : person.getGear()) {
                 if (gear.getClass() == gearRequired.getClass()) {
                     requirementMet = true;
                     break;
@@ -38,21 +38,21 @@ public class NaturalFeature {
                 explored = "unsuccessfully";
                 verb = "needing";
                 // creating a copy to iterate over since the original will be edited
-                ArrayList<Gear> copyOfNewGearRequirements = new ArrayList<Gear>(newGearRequirements);
+                ArrayList<Gear> copyOfNewGearRequired = new ArrayList<Gear>(newGearRequired);
 
                 // removing gear that the person already has
                 // allows to display only missing gear if the person cannot go
-                for (Gear newGearRequired : copyOfNewGearRequirements) {
+                for (Gear newGearItem : copyOfNewGearRequired) {
                     boolean found = false;
-                    for (Gear currentGear : p.getGear()) {
-                        if (currentGear.getClass() == newGearRequired.getClass()) {
+                    for (Gear personGear : person.getGear()) {
+                        if (personGear.getClass() == newGearItem.getClass()) {
                             found = true;
                             break;
                         }
                     }
 
                     if (found) {
-                        newGearRequirements.remove(newGearRequired);
+                        newGearRequired.remove(newGearItem);
                     }
                 }
 
@@ -63,8 +63,8 @@ public class NaturalFeature {
 
         return String.format(
                 "%s %s explored %s by %s the following gear: ",
-                p.getName(), explored, getName(), verb)
-                + Arrays.toString(newGearRequirements.toArray());
+                person.getName(), explored, getName(), verb)
+                + Arrays.toString(newGearRequired.toArray());
     }
 
     public String getName() {
