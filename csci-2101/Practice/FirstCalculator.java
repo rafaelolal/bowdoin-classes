@@ -1,4 +1,5 @@
 package Practice;
+
 import java.util.Scanner;
 
 public class FirstCalculator {
@@ -22,21 +23,17 @@ public class FirstCalculator {
             double operandOne = scan.nextDouble();
             String operator = scan.next();
             double operandTwo = scan.nextDouble();
-            
+
             double result = 0;
             if (operator.equals("+")) {
                 result = (operandOne + operandTwo);
-            }
-            else if (operator.equals("-")) {
+            } else if (operator.equals("-")) {
                 result = (operandOne - operandTwo);
-            }
-            else if (operator.equals("*")) {
+            } else if (operator.equals("*")) {
                 result = (operandOne * operandTwo);
-            }
-            else if (operator.equals("/")) {
+            } else if (operator.equals("/")) {
                 result = (operandOne / operandTwo);
-            }
-            else {
+            } else {
                 System.out.println("Invalid operator!");
             }
 
