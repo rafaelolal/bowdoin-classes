@@ -2,37 +2,45 @@ package Project1;
 
 import java.util.Random;
 
+/*
+ * Rafael Almeida
+ * CSCI 2101 C
+ * 09/20/2023
+ * Project 1: Silver Dollar Game
+ */
 public class CoinStrip {
-    private Coin[] strip;
-    private int boardLength = 1;
+    private Coin[] coins;
+    private int boardLength = 0;
     private int trailingSpaces = 0;
 
     static final private int MAX_RANDOM_DISTANCE = 6;
 
     public CoinStrip(int length) {
-        this.strip = new Coin[length];
+        this.coins = new Coin[length];
         Random rand = new Random();
 
-        for (int i = this.strip.length - 1; i >= 0; i--) {
-            int toNext = rand.nextInt(MAX_RANDOM_DISTANCE) + 1;
-            boardLength += toNext;
-            this.strip[i] = new Coin(i, toNext);
+        // creating Coin objects and determining final board length
+        // since coins array does not directly represent the board
+        for (int i = 0; i < this.coins.length; i++) {
+            int untilNext = rand.nextInt(MAX_RANDOM_DISTANCE) + 1;
+            boardLength += untilNext;
+            this.coins[i] = new Coin(i, untilNext);
         }
-
-        // adding one to toNext of last coin to "simulate" a ghost coin after it just
-        // after the end of the board
-        this.strip[this.strip.length - 1].addToNext(1);
     }
 
+    /*
+     * Movement is done by reducing untilNext and, if present, increasing untilNext
+     * of coin to the left
+     */
     public boolean moveCoin(int index, int distance) {
         if (!isMoveLegal(index, distance)) {
             return false;
         }
 
-        this.strip[index].subToNext(distance);
+        this.coins[index].subtractUntilNext(distance);
 
-        if (index != 0) {
-            this.strip[index - 1].addToNext(distance);
+        if (index != this.coins.length - 1) {
+            this.coins[index + 1].addUntilNext(distance);
         } else {
             trailingSpaces += distance;
         }
@@ -40,29 +48,39 @@ public class CoinStrip {
         return true;
     }
 
+    /*
+     * Movement is legal if it is rightward and is within limit of the next coin
+     */
     public boolean isMoveLegal(int index, int distance) {
-        return distance < this.strip[index].getToNext();
+        return distance > 0 && distance < this.coins[index].getUntilNext();
     }
 
+    /*
+     * Game is over when all coins touch
+     */
     public boolean isGameOver() {
-        for (Coin c : this.strip) {
-            if (c.getToNext() != 1) {
+        for (Coin c : this.coins) {
+            if (c.getUntilNext() != 1) {
                 return false;
             }
         }
         return true;
     }
 
+    /*
+     * Builds board right to left
+     */
     public String toString() {
-        StringBuilder str = new StringBuilder("_ ".repeat(boardLength));
+        String[] board = "_".repeat(this.boardLength).split("");
 
-        // multiplying by two because the repeat method above is done on two characters
-        int currentPos = trailingSpaces * 2;
-        for (Coin currentCoin : this.strip) {
-            str.setCharAt(currentPos, (char) (currentCoin.getIndex() + '0'));
-            currentPos += currentCoin.getToNext() * 2;
+        // starting at the right, ensuring I account for trailing spaces
+        // that arise from moving the last coin
+        int currentPos = this.boardLength - 1 - this.trailingSpaces;
+        for (int i = this.coins.length - 1; i >= 0; i--) {
+            board[currentPos] = String.valueOf(this.coins[i].getIndex());
+            currentPos -= this.coins[i].getUntilNext();
         }
 
-        return str.toString();
+        return String.join(" ", board);
     }
 }

@@ -1,27 +1,33 @@
 package Project1;
 
+/*
+ * Rafael Almeida
+ * CSCI 2101 C
+ * 09/20/2023
+ * Project 1: Silver Dollar Game
+ */
 public class Coin {
     private int index;
-    private int toNext;
+    private int untilNext; // space between current coin and one to the left or left edge
 
     public Coin(int index, int toNext) {
         this.index = index;
-        this.toNext = toNext;
+        this.untilNext = toNext;
     }
 
     public int getIndex() {
         return index;
     }
 
-    public int getToNext() {
-        return toNext;
+    public int getUntilNext() {
+        return untilNext;
     }
 
-    public void addToNext(int add) {
-        this.toNext += add;
+    public void addUntilNext(int add) {
+        this.untilNext += add;
     }
 
-    public void subToNext(int sub) {
-        this.toNext -= sub;
+    public void subtractUntilNext(int sub) {
+        this.untilNext -= sub;
     }
 }
