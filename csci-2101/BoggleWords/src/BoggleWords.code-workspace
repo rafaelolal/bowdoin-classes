@@ -1,0 +1,17 @@
+{
+  "folders": [
+	{
+		"name": "BoggleWords",
+		"path": ".."
+	},
+	{
+		"name": "test-files",
+		"path": "../../../../../Downloads/starter-code-and-test-files/test-files"
+	}
+],
+  "settings": {
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": ["lib/**/*.jar"]
+  }
+}
