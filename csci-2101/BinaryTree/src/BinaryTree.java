@@ -10,11 +10,11 @@ public class BinaryTree<E> {
     private BinaryTree<E> parent;
     private BinaryTree<E> left;
     private BinaryTree<E> right;
-    private int size;
+    // private int size;
 
     public BinaryTree(E data, BinaryTree<E> left, BinaryTree<E> right) {
         this.data = data;
-        size = 0;
+        // size = 0;
         parent = null;
         setLeft(left);
         setRight(right);
