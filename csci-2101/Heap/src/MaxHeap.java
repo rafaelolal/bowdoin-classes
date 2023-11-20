@@ -2,12 +2,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MaxHeap<T extends Comparable<T>> {
-    // heapifyUp, heapifyDown methods?
-
     private List<T> data;
 
     public MaxHeap() {
         data = new ArrayList<>();
+    }
+
+    public void recursiveInsert(T element) {
+        data.add(element);
+        heapifyUp(data.size() - 1);
+    }
+
+    public void heapifyUp(int i) {
+        T element = data.get(i);
+        int parent = (int) Math.floor((i - 1) / 2);
+
+        if (data.get(parent).compareTo(element) >= 0) {
+            return;
+        }
+
+        data.set(i, data.set(parent, element));
+        heapifyUp(parent);
     }
 
     public void insert(T element) {
@@ -24,6 +39,38 @@ public class MaxHeap<T extends Comparable<T>> {
             i = parent;
             parent = (int) Math.floor((i - 1) / 2);
         }
+    }
+
+    public T recursiveRemove() {
+        T removed;
+
+        if (data.size() == 1) {
+            removed = data.remove(0);
+        } else {
+            removed = data.set(0, data.remove(data.size() - 1));
+        }
+
+        heapifyDown(0);
+
+        return removed;
+    }
+
+    public void heapifyDown(int i) {
+        if (i >= data.size() / 2) { // this is what it means to be in a leaf
+            return;
+        }
+
+        int lChild = 2 * i + 1;
+        int rChild = 2 * (i + 1);
+        boolean hasRChild = rChild < data.size();
+        int greatestChild = hasRChild && data.get(rChild).compareTo(data.get(lChild)) > 0 ? rChild : lChild;
+
+        if (data.get(greatestChild).compareTo(data.get(i)) <= 0) {
+            return;
+        }
+
+        data.set(greatestChild, data.set(i, data.get(greatestChild)));
+        heapifyDown(greatestChild);
     }
 
     public T remove() {
