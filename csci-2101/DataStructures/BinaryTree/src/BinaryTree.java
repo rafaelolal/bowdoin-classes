@@ -9,13 +9,13 @@ public class BinaryTree<E> {
     private E data;
     private BinaryTree<E> parent;
     private BinaryTree<E> left;
-    private BinaryTree<E> right;
+    private BinaryTree<E> right; // all three can be defined in the same line
     // private int size;
 
     public BinaryTree(E data, BinaryTree<E> left, BinaryTree<E> right) {
         this.data = data;
         // size = 0;
-        parent = null;
+        parent = null; // redundant
         setLeft(left);
         setRight(right);
     }
@@ -134,6 +134,7 @@ public class BinaryTree<E> {
         return oldValue;
     }
 
+    // good
     public void setLeft(BinaryTree<E> left) {
         if (this.left != null) {
             this.left.parent = null;
@@ -144,6 +145,7 @@ public class BinaryTree<E> {
         }
     }
 
+    // good
     public void setRight(BinaryTree<E> right) {
         if (this.right != null) {
             this.right.parent = null;
@@ -174,6 +176,12 @@ public class BinaryTree<E> {
         return parent == null;
     }
 
+    // new
+    public boolean isLeaf() {
+        return left == null && right == null;
+    }
+
+    // better name may be just `.root`
     public BinaryTree<E> findRoot() {
         if (isRoot()) {
             return this;
@@ -183,7 +191,7 @@ public class BinaryTree<E> {
     }
 
     public int findDepth() {
-        if (this.parent == null) {
+        if (this.parent == null) { // same as isRoot
             return 0;
         }
 
@@ -196,7 +204,7 @@ public class BinaryTree<E> {
         }
 
         int leftDepth = 0;
-        if (this.left != null) {
+        if (this.left != null) { // can use tertiary operator to have this in one line
             leftDepth = 1 + this.left.findHeight();
         }
 
@@ -205,6 +213,7 @@ public class BinaryTree<E> {
             rightDepth = 1 + this.right.findHeight();
         }
 
+        // can use Math.max to figure this out
         return leftDepth > rightDepth ? leftDepth : rightDepth;
     }
 
