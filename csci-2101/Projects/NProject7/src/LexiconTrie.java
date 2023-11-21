@@ -1,12 +1,9 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
@@ -129,13 +126,98 @@ public class LexiconTrie implements Lexicon {
     @Override
     public Set<String> matchRegex(String pattern) {
         Set<String> matches = new HashSet<>();
-        root.recursiveMatchRegex("", pattern, matches);
+        recursiveMatchRegex(root, "", pattern, matches);
         return matches;
     }
 
-    @Override
-    public int numWords() {
-        return wordCount;
+    /**
+     * Recursively traverses the trie, exploring matches against a given pattern
+     * using simple wildcard
+     * characters (*, ?, -), within the trie represented by the current node.
+     *
+     * @param curNode the current node being traversed to see if the word it may
+     *                forms matches the pattern
+     * @param prefix  The possible match being formed
+     * @param pattern The pattern to match against
+     * @param matches A set to store valid matches for the given pattern.
+     */
+    private void recursiveMatchRegex(LexiconNode curNode, String prefix, String pattern, Set<String> matches) {
+        // If the pattern is empty, check and add to matches if the current prefix is a
+        // valid word
+        if (pattern.length() == 0) {
+            if (curNode.isWord()) {
+                matches.add(prefix);
+            }
+            return;
+        }
+
+        char toMatch = pattern.charAt(0);
+
+        // Any one character
+        if (toMatch == '_') {
+            for (LexiconNode child : curNode) {
+                recursiveMatchRegex(
+                        child,
+                        prefix + child.getCharacter(),
+                        pattern.substring(1),
+                        matches);
+            }
+        }
+        // Any sequence of zero or more characters
+        else if (toMatch == '*') {
+            // Recursively call the method with the remaining pattern after consuming '*' at
+            // the current position
+            recursiveMatchRegex(
+                    curNode,
+                    prefix,
+                    pattern.substring(1),
+                    matches);
+
+            // Iterate through child nodes to explore possible matches with the '*' wildcard
+            // For every child, either consume '*' or not
+            for (LexiconNode child : curNode) {
+                recursiveMatchRegex(
+                        child,
+                        prefix + child.getCharacter(),
+                        pattern,
+                        matches);
+            }
+        }
+        // None or any character
+        else if (toMatch == '?') {
+            // Recursively call the method with the remaining pattern after consuming '?' at
+            // the current position
+            recursiveMatchRegex(
+                    curNode,
+                    prefix,
+                    pattern.substring(1),
+                    matches);
+
+            // Iterate through child nodes to explore possible matches with the '?'
+            // wildcard
+            for (LexiconNode child : curNode) {
+                recursiveMatchRegex(
+                        child,
+                        prefix + child.getCharacter(),
+                        pattern.substring(1),
+                        matches);
+            }
+        }
+        // Match against the character in the current position of the pattern
+        else {
+            // Get the next node corresponding to the current character in the lexicon.
+            LexiconNode nextNode = curNode.get(toMatch);
+
+            // If a matching node is found, recursively call the method with the updated
+            // prefix and pattern.
+            if (nextNode != null) {
+                recursiveMatchRegex(
+                        nextNode,
+                        prefix + toMatch,
+                        pattern.substring(1),
+                        matches);
+            }
+        }
     }
 
     /**
@@ -171,8 +253,8 @@ public class LexiconTrie implements Lexicon {
         // making the final node not correspond to a word
         curNode.setIsWord(false);
         wordCount--;
-        // removal is done if final node is part of a word
-        if (curNode.children.size() != 0) {
+        // removal is done if final node is part of another word
+        if (curNode.iterator().hasNext()) {
             return true;
         }
 
@@ -203,8 +285,67 @@ public class LexiconTrie implements Lexicon {
      */
     public Set<String> suggestCorrections(String target, int maxDistance) {
         Set<String> set = new HashSet<>();
-        root.recursiveSuggestCorrections(target, maxDistance, "", set);
+        recursiveSuggestCorrections(root, target, maxDistance, "", set);
         return set;
+    }
+
+    /**
+     * Recursively traverses te trie to explore possible corrections for a given
+     * target string based on
+     * `maxDistance`
+     *
+     * @param curNode     the current node that is being traversed checked if it
+     *                    forms a suggestion
+     * @param target      The target string for which corrections are suggested
+     * @param maxDistance The maximum allowable different characters between a
+     *                    potential correction and the target
+     * @param prefix      The current prefix being formed during the recursive
+     *                    traversal
+     * @param corrections A set to store valid corrections for the target string
+     */
+    private void recursiveSuggestCorrections(
+            LexiconNode curNode,
+            String target,
+            int maxDistance,
+            String prefix,
+            Set<String> corrections) {
+        // If the maximum distance is less than 0, no further corrections allowed
+        if (maxDistance < 0) {
+            return;
+        }
+
+        // If the prefix has reached the length of the target, check and add to
+        // corrections if it is a valid word
+        if (prefix.length() == target.length()) {
+            if (curNode.isWord()) {
+                corrections.add(prefix);
+            }
+            return;
+        }
+
+        // Determine the position of the next character in the prefix
+        int nextCharacter = prefix.length();
+
+        // Iterate through child nodes in the lexicon to explore possible corrections.
+        for (LexiconNode child : curNode) {
+            // Determine the adjustment to `maxDistance` based on the current character
+            // match
+            int toSubtract = child.getCharacter() != target.charAt(nextCharacter) ? 1 : 0;
+
+            // Recursively call the method with updated parameters for the current child
+            // node
+            recursiveSuggestCorrections(
+                    child,
+                    target,
+                    maxDistance - toSubtract,
+                    prefix + child.getCharacter(),
+                    corrections);
+        }
+    }
+
+    @Override
+    public int numWords() {
+        return wordCount;
     }
 
     /**
@@ -216,246 +357,26 @@ public class LexiconTrie implements Lexicon {
     @Override
     public Iterator<String> iterator() {
         List<String> words = new ArrayList<>();
-        root.recursiveIterator("", words);
+        recursiveIterator(root, "", words);
         return words.iterator();
     }
 
     /**
-     * A recursively defined node class used to build the trie
+     * Recursively explores the trie to add to `words` all of the words in the trie
+     * in alphabetical order
+     * 
+     * @param curNode the current node being traversed to see if it forms a word
+     * @param prefix  the current potential word being formed
+     * @param words   all words found
      */
-    private class LexiconNode implements Iterable<LexiconNode>, Comparable<LexiconNode> {
-        /** The character this node represent */
-        private char character;
-        /** All the children of this node */
-        private Map<Character, LexiconNode> children;
-        /** Whether all the nodes leading up to this forms a word */
-        private boolean isWord;
-
-        private LexiconNode(char character) {
-            this.character = character;
-            children = new HashMap<>();
+    private void recursiveIterator(LexiconNode curNode, String prefix, List<String> words) {
+        if (curNode.isWord()) {
+            words.add(prefix);
         }
 
-        /**
-         * Adds character in trie after the current node
-         * 
-         * @param character the character the new child should represent
-         * 
-         * @return the newly added node
-         */
-        private LexiconNode add(char character) {
-            LexiconNode newNode = new LexiconNode(character);
-            children.put(character, newNode);
-            return newNode;
-        }
-
-        private LexiconNode get(char character) {
-            return children.get(character);
-        }
-
-        /**
-         * Recursively explores the trie to add to `words` all of the words in the trie
-         * in alphabetical order
-         * 
-         * @param prefix the current potential word being formed
-         * @param words  all words found
-         */
-        private void recursiveIterator(String prefix, List<String> words) {
-            if (isWord) {
-                words.add(prefix);
-            }
-
-            // Reached a leaf, cannot form another word
-            if (children.isEmpty()) {
-                return;
-            }
-
-            // Branching out to find more words
-            for (LexiconNode child : this) {
-                child.recursiveIterator(prefix + child.getCharacter(), words);
-            }
-        }
-
-        /**
-         * Recursively traverses te trie to explore possible corrections for a given
-         * target string based on
-         * `maxDistance`
-         *
-         * @param target      The target string for which corrections are suggested
-         * @param maxDistance The maximum allowable different characters between a
-         *                    potential correction and the target
-         * @param prefix      The current prefix being formed during the recursive
-         *                    traversal
-         * @param corrections A set to store valid corrections for the target string
-         */
-        private void recursiveSuggestCorrections(
-                String target,
-                int maxDistance,
-                String prefix,
-                Set<String> corrections) {
-            // If the maximum distance is less than 0, no further corrections allowed
-            if (maxDistance < 0) {
-                return;
-            }
-
-            // If the prefix has reached the length of the target, check and add to
-            // corrections if it is a valid word
-            if (prefix.length() == target.length()) {
-                if (isWord) {
-                    corrections.add(prefix);
-                }
-                return;
-            }
-
-            // Determine the position of the next character in the prefix
-            int nextCharacter = prefix.length();
-
-            // Iterate through child nodes in the lexicon to explore possible corrections.
-            for (LexiconNode child : this) {
-                // Determine the adjustment to `maxDistance` based on the current character
-                // match
-                int toSubtract = child.getCharacter() != target.charAt(nextCharacter) ? 1 : 0;
-
-                // Recursively call the method with updated parameters for the current child
-                // node
-                child.recursiveSuggestCorrections(
-                        target,
-                        maxDistance - toSubtract,
-                        prefix + child.getCharacter(),
-                        corrections);
-            }
-        }
-
-        private LexiconNode remove(char character) {
-            return children.remove(character);
-        }
-
-        /**
-         * Recursively traverses the trie, exploring matches against a given pattern
-         * using simple wildcard
-         * characters (*, ?, -), within the trie represented by the current node.
-         *
-         * @param prefix  The possible match being formed
-         * @param pattern The pattern to match against
-         * @param matches A set to store valid matches for the given pattern.
-         */
-        private void recursiveMatchRegex(String prefix, String pattern, Set<String> matches) {
-            // If the pattern is empty, check and add to matches if the current prefix is a
-            // valid word
-            if (pattern.length() == 0) {
-                if (isWord) {
-                    matches.add(prefix);
-                }
-                return;
-            }
-
-            char toMatch = pattern.charAt(0);
-
-            // Any one character
-            if (toMatch == '-') {
-                for (LexiconNode child : this) {
-                    child.recursiveMatchRegex(
-                            prefix + child.character,
-                            pattern.substring(1),
-                            matches);
-                }
-            }
-            // Any sequence of zero or more characters
-            else if (toMatch == '*') {
-                // Add to matches if the current prefix is valid and the pattern only contains
-                // '*'
-                if (isWord && pattern.length() == 1) {
-                    matches.add(prefix);
-                }
-
-                // Recursively call the method with the remaining pattern after consuming '*' at
-                // the current position
-                this.recursiveMatchRegex(
-                        prefix,
-                        pattern.substring(1),
-                        matches);
-
-                // Iterate through child nodes to explore possible matches with the '*' wildcard
-                // For every child, either consume '*' or not
-                for (LexiconNode child : this) {
-                    child.recursiveMatchRegex(
-                            prefix + child.character,
-                            pattern,
-                            matches);
-                }
-            }
-            // None or any character
-            else if (toMatch == '?') {
-                // Recursively call the method with the remaining pattern after consuming '?' at
-                // the current position
-                this.recursiveMatchRegex(
-                        prefix,
-                        pattern.substring(1),
-                        matches);
-
-                // Iterate through child nodes to explore possible matches with the '?'
-                // wildcard
-                for (LexiconNode child : this) {
-                    child.recursiveMatchRegex(
-                            prefix + child.character,
-                            pattern.substring(1),
-                            matches);
-                }
-            }
-            // Match against the character in the current position of the pattern
-            else {
-                // Get the next node corresponding to the current character in the lexicon.
-                LexiconNode nextNode = get(toMatch);
-
-                // If a matching node is found, recursively call the method with the updated
-                // prefix and pattern.
-                if (nextNode != null) {
-                    nextNode.recursiveMatchRegex(
-                            prefix + toMatch,
-                            pattern.substring(1),
-                            matches);
-                }
-            }
-        }
-
-        public char getCharacter() {
-            return character;
-        }
-
-        private boolean isWord() {
-            return isWord;
-        }
-
-        private void setIsWord(boolean isWord) {
-            this.isWord = isWord;
-        }
-
-        /**
-         * Compares two LexiconNodes by the ASCII order of their characters
-         * 
-         * @param other a LexiconNode to compare to
-         * 
-         * @return > 0 if this is greater, 0 if this is equal, < 0 if this is less than
-         *         other
-         */
-        @Override
-        public int compareTo(LexiconNode other) {
-            return character - other.getCharacter();
-        }
-
-        /**
-         * Alphabetical iterator for the children nodes of the current node
-         * 
-         * @return alphabetical iterator of LexiconNodes
-         */
-        @Override
-        public Iterator<LexiconNode> iterator() {
-            // create list of LexiconNodes of all children
-            List<LexiconNode> nodes = new ArrayList<>(children.values());
-            // can sort the list because of the compareTo method defined above
-            Collections.sort(nodes);
-            // returning a regular ArrayList iterator
-            return nodes.iterator();
+        // Branching out to find more words
+        for (LexiconNode child : curNode) {
+            recursiveIterator(child, prefix + child.getCharacter(), words);
         }
     }
 }
