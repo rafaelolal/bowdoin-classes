@@ -1,0 +1,10 @@
+Hop
+
+# This just hops forward blindly.
+# It's good for testing that your program works at all.
+
+start:
+hop
+# new
+left
+go start

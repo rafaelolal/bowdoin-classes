@@ -1,0 +1,22 @@
+Beyblade
+
+#beyblades are essentially flytraps that move randomly
+#they spin and infect, and have a 1/4 chance of moving after every spin
+
+start:
+ifenemy doinfect
+right
+ifrandom random
+go start
+
+random:
+ifrandom move
+go start
+
+move:
+hop
+go start
+
+doinfect:
+infect
+go start

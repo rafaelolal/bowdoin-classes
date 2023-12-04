@@ -1,0 +1,32 @@
+Rafael
+
+start:
+    ifenemy doinfect
+    ifwall random180
+    ifsame randomturn
+    hop
+    go start
+
+random180:
+    ifrandom right180
+    left
+    left
+    go start
+
+randomturn:
+    ifrandom turnright
+    left
+    go start
+
+right180:
+    right
+    right
+    go start
+
+turnright:
+    right
+    go start
+
+doinfect:
+    infect
+    go start
