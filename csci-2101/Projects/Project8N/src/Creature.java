@@ -18,7 +18,6 @@ class Creature {
     private boolean isHighlighted;
     private World world;
     private Position position;
-    private Position previousPosition;
     private Direction direction;
     private int currentAddress;
 
@@ -32,9 +31,11 @@ class Creature {
         this.isHighlighted = false;
         this.world = world;
         this.position = position;
-        this.previousPosition = null;
         this.direction = direction;
         currentAddress = 0;
+
+        world.set(position, this);
+        WorldMap.drawCreature(this);
     }
 
     Creature() {
@@ -77,6 +78,7 @@ class Creature {
         // Continue executing instructions until an action instruction is
         // encountered
         while (true) {
+
             Instruction currentInstruction = species.programStep(currentAddress);
 
             switch (currentInstruction.getOpcode()) {
@@ -95,15 +97,17 @@ class Creature {
                 case HOP:
                     // Hop forward if the square in front is in bounds and is unoccupied
                     if (world.inBounds(nextPosition) && world.get(nextPosition) == null) {
-                        // Move the creature to the new position
-                        previousPosition = position;
-                        world.set(previousPosition, null);
-                        world.set(nextPosition, this);
+                        Position prevPosition = position;
                         position = nextPosition;
 
+                        // Move the creature to the new position
+                        world.set(prevPosition, null);
+                        world.set(nextPosition, this);
+
                         // Redraw the moved creature on the world map
-                        WorldMap.drawMovedCreature(this, previousPosition);
+                        WorldMap.drawMovedCreature(this, prevPosition);
                     }
+
                     currentAddress++;
                     return;
 
@@ -113,9 +117,9 @@ class Creature {
                         nextCreature.setSpecies(species);
                         String infectLabel = currentInstruction.getLabel();
                         if (infectLabel != null) {
-                            nextCreature.setAddress(nextCreature.species().getLabelAddress(infectLabel));
+                            nextCreature.setCurrentAddress(nextCreature.species().getLabelAddress(infectLabel));
                         } else {
-                            nextCreature.setAddress(0);
+                            nextCreature.setCurrentAddress(0);
                         }
 
                         WorldMap.drawCreature(nextCreature);
@@ -133,20 +137,21 @@ class Creature {
                     break;
 
                 case IFRANDOM:
-                    int randomInteger = (int) (Math.random() * 2 + 1);
-                    if (randomInteger == 2) {
+                    if (Math.random() < 0.5) {
                         currentAddress = species.getLabelAddress(currentInstruction.getLabel());
                     } else {
                         currentAddress++;
                     }
+
                     break;
 
                 case IFEMPTY:
-                    if (nextCreature == null) {
+                    if (world.inBounds(nextPosition) && nextCreature == null) {
                         currentAddress = species.getLabelAddress(currentInstruction.getLabel());
                     } else {
                         currentAddress++;
                     }
+
                     break;
 
                 case IFWALL:
@@ -157,16 +162,19 @@ class Creature {
                     } else {
                         currentAddress++;
                     }
+
                     break;
 
                 case IFSAME:
                     // Execute the next instruction if the creature is facing a creature of the same
-                    // species
+                    // species. I check if the species are the same through their name because of my
+                    // special highlight feature
                     if (nextCreature != null && species.getName().equals(nextCreature.species().getName())) {
                         currentAddress = species.getLabelAddress(currentInstruction.getLabel());
                     } else {
                         currentAddress++;
                     }
+
                     break;
 
                 case IFENEMY:
@@ -229,7 +237,7 @@ class Creature {
      * 
      * @param newAddress The new instruction the creature is at
      */
-    void setAddress(int newAddress) {
+    void setCurrentAddress(int newAddress) {
         currentAddress = newAddress;
     }
 
@@ -241,7 +249,7 @@ class Creature {
      * Tests the functionality of the Creature class.
      */
     public static void main(String[] args) {
-        throw new UnsupportedOperationException("Please refer to `CreatueTest.java` file");
+        throw new UnsupportedOperationException("Please refer to `CreatureTest.java` file");
     }
 
 }

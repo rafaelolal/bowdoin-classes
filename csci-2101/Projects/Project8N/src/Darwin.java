@@ -24,9 +24,13 @@ public class Darwin {
     /**
      * I think it is appropriate to leave this because you might find it valuable
      */
-    private static final boolean DEBUG = false;
-    private static final boolean SIMULATE_FAST = false;
+    private static final boolean DEBUG = true;
+    private static final boolean SIMULATE_FAST = true;
     private static final int CREATURE_COUNT = 10 * 1;
+    // Instead of using an array to store the creatures in the world, ensuring the
+    // world and world map are always the same size, I just did this to avoid
+    // reformatting much of the code and keeping some of the convenience of an
+    // array list like enhanced for loops.
     private static final int WORLD_WIDTH = 15;
     private static final int WORLD_HEIGHT = 15;
     private static final int SIMULATION_DELAY = 500;
@@ -128,16 +132,19 @@ public class Darwin {
                 break;
             }
 
-            Color color;
             // Repeatedly prompting for a valid color
             // Not the same behavior as the demo provided because I do not think it is good.
             // If the invalid color was mistakenly entered, the person may really not want
             // black. Moreover, if a person makes a mistake more than once, now they got
             // different species with same color
+            // I could also do `while (color == null)` but then I cannot give a warning to
+            // the person the way I currently am
+            Color color;
             while (true) {
                 System.out.print("Enter a species color: ");
                 String colorName = scan.nextLine();
                 color = Utility.colorFromString(colorName);
+
                 if (color != null) {
                     break;
                 }
@@ -149,6 +156,13 @@ public class Darwin {
         }
 
         scan.close();
+
+        if (species.size() * CREATURE_COUNT > WORLD_HEIGHT * WORLD_WIDTH) {
+            throw new RuntimeException(
+                    "There is not enough space on the board for %d creatures for each of the %d species."
+                            .formatted(CREATURE_COUNT, species.size()));
+        }
+
         return species;
     }
 
@@ -172,8 +186,6 @@ public class Darwin {
                     if (world.get(randomPosition) == null) {
                         Creature creature = new Creature(s, world, randomPosition, Direction.random());
                         creatures.add(creature);
-                        world.set(randomPosition, creature);
-                        WorldMap.drawCreature(creature);
                         break;
                     }
                 }
