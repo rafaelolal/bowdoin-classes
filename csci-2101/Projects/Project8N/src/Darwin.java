@@ -24,8 +24,8 @@ public class Darwin {
     /**
      * I think it is appropriate to leave this because you might find it valuable
      */
-    private static final boolean DEBUG = true;
-    private static final boolean SIMULATE_FAST = true;
+    private static final boolean DEBUG = false;
+    private static final boolean SIMULATE_FAST = false;
     private static final int CREATURE_COUNT = 10 * 1;
     // Instead of using an array to store the creatures in the world, ensuring the
     // world and world map are always the same size, I just did this to avoid
