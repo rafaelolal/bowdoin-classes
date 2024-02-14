@@ -13,51 +13,91 @@ public class BinarySearchTree<T extends Comparable<T>> implements Iterable<T> {
         return root;
     }
 
-    public BinaryTree<T> locate(BinaryTree<T> curNode, T target) {
-        // this node is the target
-        if (curNode.getData().equals(target)) {
-            return curNode;
+    // displacing means making the pointers that point to o point to n
+    private void displace(BinaryTree<T> o, BinaryTree<T> n) {
+        if (o.getParent() == null) { // if o is root, make n the root
+            root = n;
+
+        }
+        // o has a parent
+        else if (o == o.getParent().getLeft()) { // if o is a left child, make n o's parent's left child
+            o.getParent().setLeft(n);
+
+        } else { // if o is a right child, make n o's parent's right child
+            o.getParent().setRight(n);
         }
 
-        // deciding which child tree may contain the target
-        BinaryTree<T> child;
-        if (target.compareTo(curNode.getData()) < 0) {
-            child = curNode.getLeft();
-        } else {
-            child = curNode.getRight();
+        if (n != null) { // if n is not empty, since it is now a child of o's parent make n's parent o's
+                         // parent
+            n.setParent(o.getParent());
         }
-
-        if (child == null) {
-            return curNode;
-        }
-
-        // moving on to that target
-        return locate(child, target);
     }
 
-    public void add(T target) {
-        BinaryTree<T> newNode = new BinaryTree<T>(target);
-        if (root == null) {
+    public void remove(T data) {
+        BinaryTree<T> node = get(root, data);
+
+        if (node.getLeft() == null) { // node only has right child
+            // make whatever used to point to node point to its right child
+            displace(node, node.getRight());
+        } else if (node.getRight() == null) { // node only has left child
+            // ditto
+            displace(node, node.getLeft());
+        } else { // node has neither or both children
+            BinaryTree<T> successor = successor(node);
+            if (successor.getParent() != node) { // if node is not the parent of its successor / if the successor of
+                                                 // node is not its right child
+                // make whatever used to point to successor point to its right child
+                displace(successor, successor.getRight());
+                // make the successor right child, whatever the deleted node has as the right
+                // this is done because in the next step node will be displaced by successor
+                successor.setRight(node.getRight());
+            }
+
+            // make everything that pointed to node point to successor, which points to
+            // node's right children
+            displace(node, successor);
+            // make successor point to node's left children
+            successor.setLeft(node.getLeft());
+            // make node's left children know that it is now its parents because of the
+            // above step
+            successor.getLeft().setParent(successor);
+        }
+    }
+
+    public BinaryTree<T> get(BinaryTree<T> curNode, T target) {
+        if (curNode == null || curNode.getData().equals(target)) {
+            return curNode;
+        } else if (target.compareTo(curNode.getData()) < 0) {
+            return curNode.getLeft() != null ? get(curNode.getLeft(), target) : null;
+        } else {
+            return curNode.getRight() != null ? get(curNode.getRight(), target) : null;
+        }
+    }
+
+    public void add(BinaryTree<T> curNode, T target) {
+        if (curNode == null) {
+            BinaryTree<T> newNode = new BinaryTree<>(target); // repeated code but avoids creating when unnecessary
             root = newNode;
             return;
         }
 
-        BinaryTree<T> insertLocation = locate(root, target);
-        if (target.compareTo(insertLocation.getData()) < 0) {
-            insertLocation.setLeft(newNode);
-        } else if (target.compareTo(insertLocation.getData()) > 0) {
-            insertLocation.setRight(newNode);
-        } else {
-            // looking for successor: smallest element on the right subtree
-            // if no right subtree present, put newNode on the right
-            if (insertLocation.getRight() != null) {
-                insertLocation = successor(insertLocation);
-                insertLocation.setLeft(newNode);
-            } else {
-                insertLocation.setRight(newNode);
-            }
-
+        if (curNode.getLeft() != null && target.compareTo(curNode.getData()) < 0) {
+            add(curNode.getLeft(), target);
+            return;
+        } else if (curNode.getRight() != null && target.compareTo(curNode.getData()) >= 0) {
+            add(curNode.getRight(), target);
+            return;
         }
+
+        BinaryTree<T> newNode = new BinaryTree<>(target);
+
+        if (target.compareTo(curNode.getData()) < 0) {
+            curNode.setLeft(newNode);
+        } else {
+            curNode.setRight(newNode);
+        }
+
+        newNode.setParent(curNode);
     }
 
     public boolean contains(T target) {
@@ -65,7 +105,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Iterable<T> {
             return false;
         }
 
-        BinaryTree<T> node = locate(root, target);
+        BinaryTree<T> node = get(root, target);
         return node.getData().equals(target);
     }
 
