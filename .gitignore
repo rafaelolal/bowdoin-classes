@@ -1,0 +1,6 @@
+.DS_Store
+bin/
+*.zip
+*.jar
+*.pem
+*.pub
