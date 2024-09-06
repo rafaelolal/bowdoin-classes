@@ -1,0 +1,171 @@
+Bowdoin College - Available Housing for Lottery
+ Chamberlain Hall: Cha-110
+Floor: 1st floor
+Room: Cha-110
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-119
+Floor: 1st floor
+Room: Cha-119
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-120
+Floor: 1st floor
+Room: Cha-120
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-209
+Floor: 2nd floor
+Room: Cha-209
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-210
+Floor: 2nd floor
+Room: Cha-210
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-219
+Floor: 2nd floor
+Room: Cha-219
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-220
+Floor: 2nd floor
+Room: Cha-220
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-309
+Floor: 3rd floor
+Room: Cha-309
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-310
+Floor: 3rd floor
+Room: Cha-310
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-319
+Floor: 3rd floor
+Room: Cha-319
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-320
+Floor: 3rd floor
+Room: Cha-320
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-409
+Floor: 4th floor
+Room: Cha-409
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-410
+Floor: 4th floor
+Room: Cha-410
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-419
+Floor: 4th floor
+Room: Cha-419
+Room Type: 2-Person Room
+Comments:
+ Chamberlain Hall: Cha-420
+Floor: 4th floor
+Room: Cha-420
+Room Type: 2-Person Room
+Comments:
+ Howard Hall Sub-Free: How-201
+Floor: 2nd floor
+Room: How-201
+Room Type: 5-Person Suite
+Comments:
+ Howard Hall Sub-Free: How-301
+Floor: 3rd floor
+Room: How-301
+Room Type: 5-Person Suite
+Comments:
+ Howard Hall Sub-Free: How-401
+Floor: 4th floor
+Room: How-401
+Room Type: 5-Person Suite
+Comments:
+ Stowe Inn: Sti-2A
+Floor: 2nd floor
+Room: Sti-2A
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-2B
+Floor: 2nd floor
+Room: Sti-2B
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-2C
+Floor: 2nd floor
+Room: Sti-2C
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-2D
+Floor: 2nd floor
+Room: Sti-2D
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-2E
+Floor: 2nd floor
+Room: Sti-2E
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-2G
+Floor: 2nd floor
+Room: Sti-2G
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-3A
+Floor: 3rd floor
+Room: Sti-3A
+Room Type: 5-Person Apartment
+Comments: Kitchen, living room, two bedrooms, two full bathrooms, two walk-in closets.
+ Stowe Inn: Sti-3B
+Floor: 3rd floor
+Room: Sti-3B
+Room Type: 5-Person Apartment
+Comments: Kitchen, living room, two bedrooms, two full bathrooms, two walk-in closets.
+ Stowe Inn: Sti-3C
+Floor: 3rd floor
+Room: Sti-3C
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-3E
+Floor: 3rd floor
+Room: Sti-3E
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Inn: Sti-3F
+Floor: 3rd floor
+Room: Sti-3F
+Room Type: 3-Person Apartment
+Comments: Kitchen, living room, bedroom, full bathroom, walk-in closet.
+ Stowe Hall: Sto-101
+Floor: 1st floor
+Room: Sto-101
+Room Type: 5-Person Suite
+Comments:
+ Stowe Hall: Sto-202
+Floor:
+Room: Sto-202
+Room Type: 5-Person Suite
+Comments:
+ Stowe Hall: Sto-402
+Floor: 4th floor
+Room: Sto-402
+Room Type: 5-Person Suite
+Comments:
+ Stowe Hall: Sto-501
+Floor: 5th floor
+Room: Sto-501
+Room Type: 5-Person Suite
+Comments:
+ Stowe Hall: Sto-502
+Floor: 5th floor
+Room: Sto-502
+Room Type: 5-Person Suite
+Comments:
