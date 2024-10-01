@@ -9,28 +9,53 @@ def build_model(
     shape: tuple[int],
     convoluted: list[tuple[int]],
     linear: list[int],
+    batch_norm: bool = False,
+    dropout: float = 0.0,
 ) -> nn.Sequential:
+    if batch_norm and dropout:
+        raise ValueError(
+            "batch_norm and dropout cannot both be True for this lab"
+        )
+
     layers = []
 
     # first layer
     if convoluted:
         layers.append(nn.Conv2d(shape[0], convoluted[0][0], convoluted[0][1]))
+        if batch_norm:
+            layers.append(nn.BatchNorm2d(convoluted[0][0]))
         layers.append(nn.ReLU())
+        if dropout:
+            layers.append(nn.Dropout(dropout))
 
+    # convolutional layers
     for i in range(1, len(convoluted)):
         layers.append(
             nn.Conv2d(convoluted[i - 1][0], convoluted[i][0], convoluted[i][1])
         )
+        if batch_norm:
+            layers.append(nn.BatchNorm2d(convoluted[i][0]))
         layers.append(nn.ReLU())
+        if dropout:
+            layers.append(nn.Dropout(dropout))
 
     layers.append(nn.Flatten())
 
+    # linear layers
     for i in range(len(linear) - 1):
         layers.append(nn.Linear(linear[i], linear[i + 1]))
+        if batch_norm:
+            layers.append(nn.BatchNorm1d(linear[i + 1]))
         layers.append(nn.ReLU())
+        if dropout:
+            layers.append(nn.Dropout(dropout))
 
     # last layer
-    layers.append(nn.Linear(layers[-2].out_features, classes))
+    last_layer = -2
+    if batch_norm or dropout:
+        last_layer -= 1
+
+    layers.append(nn.Linear(layers[last_layer].out_features, classes))
 
     return nn.Sequential(*layers)
 

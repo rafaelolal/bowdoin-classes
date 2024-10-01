@@ -52,10 +52,11 @@ def cnn_mlp():
     )
 
     cnn_param_count = get_parameter_count(cnn)
-    mlp_param_count = get_parameter_count(mlp)
     cnn_time, cnn_info = time_it(train)(cnn, train_loader, device)
-    mlp_time, mlp_info = time_it(train)(mlp, train_loader, device, 10)
     cnn_accuracy = test(cnn, test_loader, device)
+
+    mlp_time, mlp_info = time_it(train)(mlp, train_loader, device)
+    mlp_param_count = get_parameter_count(mlp)
     mlp_accuracy = test(mlp, test_loader, device)
 
     file_name = "cnn_mlp.txt"
@@ -105,6 +106,7 @@ def kernel_size():
 
     file_name = "kernel_size.txt"
     append_to_file(file_name, datetime.now())
+    append_to_file(file_name, f"kernel sizes: {sizes}")
     append_to_file(file_name, f"parameter counts: {parameter_counts}")
     append_to_file(file_name, f"training times: {training_times}")
     append_to_file(file_name, f"epochs: {epochs}")
@@ -154,3 +156,62 @@ def filter_count():
     append_to_file(file_name, f"training times: {training_times}")
     append_to_file(file_name, f"epochs: {epochs}")
     append_to_file(file_name, f"accuracies: {accuracies}")
+
+
+def batch_norm_dropout():
+    batch_norm = build_model(
+        classes=10,
+        shape=(1, 28, 28),
+        convoluted=[
+            (4, 3),
+            (8, 3),
+            (16, 3),
+            (32, 3),
+            (64, 3),
+            (128, 3),
+        ],
+        linear=[32768, 28, 28],
+        batch_norm=True,
+    )
+
+    dropout = build_model(
+        classes=10,
+        shape=(1, 28, 28),
+        convoluted=[
+            (4, 3),
+            (8, 3),
+            (16, 3),
+            (32, 3),
+            (64, 3),
+            (128, 3),
+        ],
+        linear=[32768, 28, 28],
+        dropout=0.5,
+    )
+
+    summary(batch_norm, (1, 28, 28))
+    summary(dropout, (1, 28, 28))
+
+    batch_norm_param_count = get_parameter_count(batch_norm)
+    batch_norm_time, batch_norm_info = time_it(train)(
+        batch_norm, train_loader, device
+    )
+    batch_norm_accuracy = test(batch_norm, test_loader, device)
+
+    dropout_param_count = get_parameter_count(dropout)
+    dropout_time, dropout_info = time_it(train)(dropout, train_loader, device)
+    dropout_accuracy = test(dropout, test_loader, device)
+
+    file_name = "batch_norm_dropout.txt"
+    append_to_file(file_name, datetime.now())
+    append_to_file(
+        file_name, f"batch norm param count: {batch_norm_param_count}"
+    )
+    append_to_file(file_name, f"batch norm time: {batch_norm_time}")
+    append_to_file(file_name, f"batch norm info: {batch_norm_info}")
+    append_to_file(file_name, f"batch norm accuracy: {batch_norm_accuracy}")
+
+    append_to_file(file_name, f"dropout param count: {dropout_param_count}")
+    append_to_file(file_name, f"dropout time: {dropout_time}")
+    append_to_file(file_name, f"dropout info: {dropout_info}")
+    append_to_file(file_name, f"dropout accuracy: {dropout_accuracy}")
