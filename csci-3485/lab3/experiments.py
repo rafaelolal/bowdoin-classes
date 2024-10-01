@@ -15,6 +15,8 @@ elif cuda.is_available():
 else:
     device = "cpu"
 
+print(f"Using device: {device}")
+
 train_loader, test_loader = get_data_loaders()
 
 
