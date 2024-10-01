@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/main.py", line 1, in <module>
+    from experiments import batch_norm_dropout, cnn_mlp, filter_count, kernel_size
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/experiments.py", line 6, in <module>
+    from torchsummary import summary
+ModuleNotFoundError: No module named 'torchsummary'

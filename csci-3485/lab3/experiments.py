@@ -189,9 +189,6 @@ def batch_norm_dropout():
         dropout=0.5,
     )
 
-    summary(batch_norm, (1, 28, 28))
-    summary(dropout, (1, 28, 28))
-
     batch_norm_param_count = get_parameter_count(batch_norm)
     batch_norm_time, batch_norm_info = time_it(train)(
         batch_norm, train_loader, device

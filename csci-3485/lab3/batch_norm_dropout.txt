@@ -4,3 +4,12 @@ batch norm param count: 4035
 batch norm time: 53.43143010139465
 batch norm info: {'epochs': 7}
 batch norm accuracy: 0.8233
+2024-10-01 09:15:45.833328
+batch norm param count: 1017746
+batch norm time: 116.85005164146423
+batch norm info: {'epochs': 11}
+batch norm accuracy: 0.9175
+dropout param count: 1017130
+dropout time: 102.420578956604
+dropout info: {'epochs': 11}
+dropout accuracy: 0.7856

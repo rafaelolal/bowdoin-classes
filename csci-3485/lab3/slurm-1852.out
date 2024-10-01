@@ -1,0 +1,30 @@
+Using device: cuda
+Traceback (most recent call last):
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/main.py", line 6, in <module>
+    batch_norm_dropout()
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/experiments.py", line 192, in batch_norm_dropout
+    summary(batch_norm, (1, 28, 28))
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torchsummary/torchsummary.py", line 72, in summary
+    model(*x)
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torch/nn/modules/container.py", line 219, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1603, in _call_impl
+    result = forward_call(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 458, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ralmeida/Downloads/bowdoin-classes/csci-3485/lab3/env/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 454, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Input type (torch.cuda.FloatTensor) and weight type (torch.FloatTensor) should be the same
