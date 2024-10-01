@@ -1,3 +1,7 @@
+"""
+Defines the experiments to be run.
+"""
+
 from datetime import datetime
 from time import time
 
@@ -21,6 +25,10 @@ train_loader, test_loader = get_data_loaders()
 
 
 def time_it(f):
+    """
+    Times the execution of a function.
+    """
+
     def wrapper(*args, **kwargs):
         start = time()
         result = f(*args, **kwargs)
@@ -29,7 +37,12 @@ def time_it(f):
     return wrapper
 
 
-def cnn_mlp():
+def cnn_mlp() -> None:
+    """
+    Builds and trains the models, and saves the data for the CNN vs MLP experiment.
+    """
+
+    # building
     cnn = build_model(
         classes=10,
         shape=(1, 28, 28),
@@ -51,6 +64,7 @@ def cnn_mlp():
         linear=[784] + [330] * 8,
     )
 
+    # training
     cnn_param_count = get_parameter_count(cnn)
     cnn_time, cnn_info = time_it(train)(cnn, train_loader, device)
     cnn_accuracy = test(cnn, test_loader, device)
@@ -59,6 +73,7 @@ def cnn_mlp():
     mlp_param_count = get_parameter_count(mlp)
     mlp_accuracy = test(mlp, test_loader, device)
 
+    # saving data
     file_name = "cnn_mlp.txt"
     append_to_file(file_name, datetime.now())
     append_to_file(file_name, f"cnn param count: {cnn_param_count}")
@@ -71,8 +86,14 @@ def cnn_mlp():
     append_to_file(file_name, f"mlp accuracy: {mlp_accuracy}")
 
 
-def kernel_size():
+def kernel_size() -> None:
+    """
+    Builds and trains the models, and saves the data for the kernel size experiment.
+    """
+
     sizes = [2, 3, 5, 7, 9]
+
+    # building
     models = []
     for size in sizes:
         model = build_model(
@@ -87,6 +108,7 @@ def kernel_size():
         )
         models.append(model)
 
+    # training
     parameter_counts = []
     for model in models:
         parameter_count = get_parameter_count(model)
@@ -104,6 +126,7 @@ def kernel_size():
         accuracy = test(model, test_loader, device)
         accuracies.append(accuracy)
 
+    # saving data
     file_name = "kernel_size.txt"
     append_to_file(file_name, datetime.now())
     append_to_file(file_name, f"kernel sizes: {sizes}")
@@ -113,8 +136,14 @@ def kernel_size():
     append_to_file(file_name, f"accuracies: {accuracies}")
 
 
-def filter_count():
+def filter_count() -> None:
+    """
+    Builds and trains the models, and saves the data for the filter count experiment.
+    """
+
     filter_counts = [5, 10, 15, 20, 25]
+
+    # building
     models = []
     for count in filter_counts:
         model = build_model(
@@ -132,6 +161,7 @@ def filter_count():
         )
         models.append(model)
 
+    # training
     parameter_counts = []
     for model in models:
         parameter_count = get_parameter_count(model)
@@ -149,6 +179,7 @@ def filter_count():
         accuracy = test(model, test_loader, device)
         accuracies.append(accuracy)
 
+    # saving data
     file_name = "filter_count.txt"
     append_to_file(file_name, datetime.now())
     append_to_file(file_name, f"filter counts: {filter_counts}")
@@ -158,7 +189,12 @@ def filter_count():
     append_to_file(file_name, f"accuracies: {accuracies}")
 
 
-def batch_norm_dropout():
+def batch_norm_dropout() -> None:
+    """
+    Builds and trains the CNN from the CNN vs. MLP experiment but with batch normalization and dropout layerrs
+    """
+
+    # building
     batch_norm = build_model(
         classes=10,
         shape=(1, 28, 28),
@@ -189,6 +225,7 @@ def batch_norm_dropout():
         dropout=0.5,
     )
 
+    # training
     batch_norm_param_count = get_parameter_count(batch_norm)
     batch_norm_time, batch_norm_info = time_it(train)(
         batch_norm, train_loader, device
@@ -199,6 +236,7 @@ def batch_norm_dropout():
     dropout_time, dropout_info = time_it(train)(dropout, train_loader, device)
     dropout_accuracy = test(dropout, test_loader, device)
 
+    # saving data
     file_name = "batch_norm_dropout.txt"
     append_to_file(file_name, datetime.now())
     append_to_file(

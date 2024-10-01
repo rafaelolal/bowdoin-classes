@@ -1,3 +1,7 @@
+"""
+Defines helper functions for building, training, and testing models with architectures specific to this lab.
+"""
+
 import torch.nn as nn
 from torch import no_grad
 from torch.optim import Adam
@@ -12,6 +16,10 @@ def build_model(
     batch_norm: bool = False,
     dropout: float = 0.0,
 ) -> nn.Sequential:
+    """
+    Builds a model with convolutional first if any, then linear layers if any. Adds a batch normalization or dropout layer in between each if specified
+    """
+
     if batch_norm and dropout:
         raise ValueError(
             "batch_norm and dropout cannot both be True for this lab"
@@ -61,6 +69,9 @@ def build_model(
 
 
 def get_parameter_count(model: nn.Sequential) -> int:
+    """
+    Custom function that returns the number of parameters in a model like torchvision's summary function
+    """
     return sum(p.numel() for p in model.parameters())
 
 
@@ -68,20 +79,28 @@ def train(
     model: nn.Sequential,
     data_loader: DataLoader,
     device: str,
-    max_epochs=None,
-    lr=1e-3,
-    min_delta=1e-2,
-):
+    max_epochs: int = None,
+    lr: float = 1e-3,
+    min_delta: float = 1e-2,
+) -> dict:
+    """
+    Trains the model on the data loader following the given parameters.
+    """
+
     model.to(device)
     model.train()
 
     optimizer = Adam(model.parameters(), lr=lr)
     loss_fn = nn.CrossEntropyLoss()
 
-    best_loss = float("inf")
+    # info to return about the training
+    # could include the loss/accuracy per epoch for example
     epochs = 0
+
+    best_loss = float("inf")
     while max_epochs is None or epochs < max_epochs:
         epoch_loss = 0
+        # training on each batch
         for x, y in data_loader:
             x, y = x.to(device), y.to(device)
 
@@ -96,6 +115,7 @@ def train(
         epochs += 1
         avg_loss = epoch_loss / len(data_loader)
 
+        # stop if the loss has not improved enough
         if abs(best_loss - avg_loss) < min_delta:
             break
 
@@ -106,6 +126,10 @@ def train(
 
 @no_grad()
 def test(model: nn.Sequential, data_loader: DataLoader, device: str) -> float:
+    """
+    Tests the accuracy of the model on the data loader.
+    """
+
     model.to(device)
     model.eval()
 

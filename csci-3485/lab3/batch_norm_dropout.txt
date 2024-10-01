@@ -1,5 +1,5 @@
 2024-10-01 08:58:57.352248
-no convoluted layers, linear: [784, 5, 5]
+# no convoluted layers, linear: [784, 5, 5]
 batch norm param count: 4035
 batch norm time: 53.43143010139465
 batch norm info: {'epochs': 7}
