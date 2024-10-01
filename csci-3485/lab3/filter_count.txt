@@ -1,0 +1,6 @@
+2024-10-01 01:33:56.439997
+filter count: [2]
+parameter counts: [15676]
+training times: [106.75140023231506]
+epochs: [9]
+accuracies: [0.8151]
