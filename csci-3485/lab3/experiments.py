@@ -71,7 +71,7 @@ def cnn_mlp():
 
 
 def kernel_size():
-    sizes = [2]  # , 3, 5, 7, 9]
+    sizes = [2, 3, 5, 7, 9]
     models = []
     for size in sizes:
         model = build_model(

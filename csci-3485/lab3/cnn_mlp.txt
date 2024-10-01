@@ -3,3 +3,12 @@
 75.71804976463318
 10
 0.8561
+2024-10-01 02:09:33.422075
+cnn param count: 1017130
+cnn time: 105.08712863922119
+cnn info: {'epochs': 12}
+cnn accuracy: 0.8932
+mlp param count: 1026970
+mlp time: 62.80181646347046
+mlp info: {'epochs': 8}
+mlp accuracy: 0.8766
