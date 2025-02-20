@@ -1,5 +1,4 @@
 comment	// hello how are youd
-
 type	int
 main	main
 (	(
@@ -49,7 +48,6 @@ intLiteral	1
 ;	;
 }	}
 comment	// this dont even make sense
-
 type	char
 id	c
 assignOp	=
@@ -73,7 +71,6 @@ charLiteral	'o'
 }	}
 ;	;
 comment	// great list
-
 print	print
 id	x
 ;	;

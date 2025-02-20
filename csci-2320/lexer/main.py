@@ -12,7 +12,7 @@ eol = r"\n"
 token_patterns = [
     # anyChar|whitespace group is not capturing to avoid having it appear in
     # the lexemes list
-    ("comment", rf"//(?:{anyChar}|{whitespace})*{eol}"),
+    ("comment", rf"//(?:{anyChar}|{whitespace})*"),
     ("main", r"main"),
     ("if", r"if"),
     ("else", r"else"),
