@@ -90,7 +90,15 @@ boolLiteral	true
 while	while
 (	(
 id	i
-relOp	<
+relOp	<=
+intLiteral	10
+equOp	==
+id	b
+relOp	<=
+intLiteral	10
+equOp	!=
+intLiteral	10
+relOp	>
 intLiteral	10
 )	)
 {	{

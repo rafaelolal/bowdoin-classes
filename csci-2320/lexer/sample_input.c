@@ -15,7 +15,7 @@ int main() {
 
   int i = 0;
   bool b = true;
-  while (i < 10) {
+  while (i <= 10 == b <= 10 != 10 > 10) {
     i = i + 1;
     if (i == 5) {
       b = false;
