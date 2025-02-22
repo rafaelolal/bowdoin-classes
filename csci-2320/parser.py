@@ -1,51 +1,87 @@
 # CSCI 2320: RD and more specifically LL(1) parser
-# Mohammad T. Irfan
-# Grammar productions
-# Expr -> Term {(+|-) Term}
-# Term -> Factor {(+|-) Factor}
-# Factor -> intLiteral
+# Author: Mohammad T. Irfan
+# Edited by: Rafael Almeida '27
 
-tokens = ["intLiteral", "+", "intLiteral", "*", "intLiteral"]  # input
+# Grammar
+# Expression -> Product {(+|-) Product}
+# Product -> Exponent {(*|/) Exponent}
+# Exponent -> Term [^ Exponent]
+# Term -> 0|1|2|3|4|5|6|7|8|9|(Expression)
+
+# input
+# space separated for the sake of easy lexing
+i = "intLiteral"
+my_input = f"{i} + ( {i} * {i} ) ^ {i} ^ {i} + ( {i} + {i} )"
+print(f"Input: {my_input}")
+
+# Lexing
+tokens = my_input.split()
+
 token_pointer = 0
 
 
 def main():
-    expr()  # start symbol
-    if token_pointer < len(tokens):  # could not consume the whole input
-        error("Incomplete expression. Error at index " + str(token_pointer))
+    # start symbol
+    expression()
+    # could not consume the whole input
+    if token_pointer < len(tokens):
+        error(
+            f'Incomplete expression caused by token "{tokens[token_pointer]}" at index {str(token_pointer)}'
+        )
     else:
         print("Valid Expression!")
 
 
-# Expr -> Term {(+|-) Term}
-def expr():
+# Expression -> Product {(+|-) Product}
+def expression():
     global token_pointer
-    term()
+    product()
     while token_pointer < len(tokens) and (
         tokens[token_pointer] == "+" or tokens[token_pointer] == "-"
     ):
         token_pointer += 1
-        term()
+        product()
 
 
-# Term -> Factor {(+|-) Factor}
-def term():
+# Product -> Exponent {(*|/) Exponent}
+def product():
     global token_pointer
-    factor()
+    exponent()
     while token_pointer < len(tokens) and (
         tokens[token_pointer] == "*" or tokens[token_pointer] == "/"
     ):
         token_pointer += 1
-        factor()
+        exponent()
 
 
-# Factor -> intLiteral
-def factor():
+# Exponent -> Term [^ Exponent]
+def exponent():
+    global token_pointer
+    term()
+    if token_pointer < len(tokens) and tokens[token_pointer] == "^":
+        token_pointer += 1
+        exponent()
+
+    # no need for else since the exponent is optional
+
+
+# Term -> intLiteral|(Expression)
+def term():
     global token_pointer
     if token_pointer < len(tokens) and tokens[token_pointer] == "intLiteral":
         token_pointer += 1
-    else:  # operand (intLiteral) missing
-        error("Missing intLiteral at index " + str(token_pointer))
+    elif token_pointer < len(tokens) and tokens[token_pointer] == "(":
+        token_pointer += 1
+        expression()
+        if token_pointer < len(tokens) and tokens[token_pointer] == ")":
+            token_pointer += 1
+        else:
+            error(f'Missing ")" at index {str(token_pointer)}')
+
+    else:
+        error(
+            f'Invalid token "{tokens[token_pointer]}" at index {str(token_pointer)}'
+        )
 
 
 def error(msg):
