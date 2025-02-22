@@ -3,15 +3,18 @@
 # Edited by: Rafael Almeida '27
 
 # Grammar
-# Expression -> Product {(+|-) Product}
-# Product -> Exponent {(*|/) Exponent}
-# Exponent -> Term [^ Exponent]
-# Term -> 0|1|2|3|4|5|6|7|8|9|(Expression)
+# Assignment -> Identifier = Expression
+# Expression -> Term {(+|-) Term}
+# Term -> Exponent {(*|/) Exponent}
+# Exponent -> Factor [^ Exponent]
+# Factor -> [-] Primary
+# Primary -> Identifier|IntLiteral|(Expression)
 
 # input
 # space separated for the sake of easy lexing
-i = "intLiteral"
-my_input = f"{i} + ( {i} * {i} ) ^ {i} ^ {i} + ( {i} + {i} )"
+i = "IntLiteral"
+d = "Identifier"
+my_input = f"{d} = - {i} - ( {i} * {d} ) ^ {i} ^ - {i} + ( {d} + {i} )"
 print(f"Input: {my_input}")
 
 # Lexing
@@ -22,7 +25,7 @@ token_pointer = 0
 
 def main():
     # start symbol
-    expression()
+    assignment()
     # could not consume the whole input
     if token_pointer < len(tokens):
         error(
@@ -32,19 +35,31 @@ def main():
         print("Valid Expression!")
 
 
-# Expression -> Product {(+|-) Product}
+# Assignment -> Identifier = Expression
+def assignment():
+    global token_pointer
+    identifier()
+    if token_pointer < len(tokens) and tokens[token_pointer] == "=":
+        token_pointer += 1
+        expression()
+
+    else:
+        error(f'Missing "=" at index {str(token_pointer)}')
+
+
+# Expression -> Term {(+|-) Term}
 def expression():
     global token_pointer
-    product()
+    term()
     while token_pointer < len(tokens) and (
         tokens[token_pointer] == "+" or tokens[token_pointer] == "-"
     ):
         token_pointer += 1
-        product()
+        term()
 
 
-# Product -> Exponent {(*|/) Exponent}
-def product():
+# Term -> Exponent {(*|/) Exponent}
+def term():
     global token_pointer
     exponent()
     while token_pointer < len(tokens) and (
@@ -54,10 +69,10 @@ def product():
         exponent()
 
 
-# Exponent -> Term [^ Exponent]
+# Exponent -> Factor [^ Exponent]
 def exponent():
     global token_pointer
-    term()
+    factor()
     if token_pointer < len(tokens) and tokens[token_pointer] == "^":
         token_pointer += 1
         exponent()
@@ -65,11 +80,24 @@ def exponent():
     # no need for else since the exponent is optional
 
 
-# Term -> intLiteral|(Expression)
-def term():
+# Factor -> [-] Primary
+def factor():
     global token_pointer
-    if token_pointer < len(tokens) and tokens[token_pointer] == "intLiteral":
+    if token_pointer < len(tokens) and tokens[token_pointer] == "-":
         token_pointer += 1
+
+    primary()
+
+
+# Primary -> Identifier|IntLiteral|(Expression)
+def primary():
+    global token_pointer
+    if token_pointer < len(tokens) and tokens[token_pointer] in [
+        "Identifier",
+        "IntLiteral",
+    ]:
+        token_pointer += 1
+
     elif token_pointer < len(tokens) and tokens[token_pointer] == "(":
         token_pointer += 1
         expression()
@@ -82,6 +110,14 @@ def term():
         error(
             f'Invalid token "{tokens[token_pointer]}" at index {str(token_pointer)}'
         )
+
+
+def identifier():
+    global token_pointer
+    if token_pointer < len(tokens) and tokens[token_pointer] == "Identifier":
+        token_pointer += 1
+    else:
+        error(f'Missing "Identifier" at index {str(token_pointer)}')
 
 
 def error(msg):
