@@ -1,0 +1,5 @@
+cant do this because of lazy eval:
+    change the grammar to just be tuples instead of
+    functions that return a tuple
+CHECK page 80 of ch3 of tucker. You can convert an optional to an option by adding | ""
+FIRST method should be defined inside of grammar.py
