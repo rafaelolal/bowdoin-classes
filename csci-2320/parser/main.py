@@ -1,3 +1,5 @@
+# link: https://github.com/rafaelolal/bowdoin-classes/tree/main/csci-2320/parser
+
 import sys
 
 from grammar import program
@@ -26,7 +28,8 @@ def preprocess_tokens(tokens: list[str]) -> list[str]:
 
 
 def is_token_valid(token: str) -> bool:
-    not_valid_tokens = ["comment"]
+    # for this project, comment, %, and [] are invalid
+    not_valid_tokens = ["comment", "%", "[", "]"]
     return token not in not_valid_tokens
 
 
