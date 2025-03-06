@@ -10,6 +10,9 @@ eol = r"\n"
 
 # Ordered by "precedence" when tokenizing
 token_patterns = [
+    # added these to help debugging the parser project
+    ("&&", r"&&"),
+    ("||", r"\|\|"),
     # anyChar|whitespace group is not capturing to avoid having it appear in
     # the lexemes list
     ("comment", rf"//(?:{anyChar}|{whitespace})*"),
