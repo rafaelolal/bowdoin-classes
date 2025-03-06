@@ -93,9 +93,6 @@ class Parser:
         Tries to consume the next token if it matches the expected token.
         """
 
-        if self.index == len(self.tokens):
-            self.error(f'Expected "{expected_token}" but reached EOF')
-
         if self.token() != expected_token:
             self.error(
                 f'Expected "{expected_token}" at index {self.index} but got "{self.token()}"'
@@ -107,6 +104,9 @@ class Parser:
         """
         The current token being parsed.
         """
+
+        if self.index == len(self.tokens):
+            self.error("Reached EOF without consuming all tokens")
 
         return self.tokens[self.index]
 
