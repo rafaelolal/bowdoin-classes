@@ -1,4 +1,15 @@
 ##############################################################################
+# Code structure:
+# There is the Interpreter class that implements the recursive descent
+# interpretation. It is structured such that each method corresponds to a
+# grammar in order. Lower down in the class there are some other helper
+# methods.
+# There is the Main class that reads the input file and calls the Interpreter.
+# There are some custom exceptions that are used to report errors.
+# Then there are some constants that are used throughout the code.
+##############################################################################
+
+##############################################################################
 # Design Choices:
 ##############################################################################
 # Implicit promotion from int to float during arithmetic operations
@@ -13,6 +24,8 @@
 # Equality operators (==, !=) require matching types and produce bool
 # Logical operators (&&, ||, !) require bool operands and produce bool
 # Runtime checks for division by zero
+# There is little to any checks of grammar because it was stated that the
+#   input was syntactically valid
 
 ##############################################################################
 # Grammar:
@@ -52,52 +65,16 @@
 
 import sys
 from typing import Any, Union
-
-TOKEN = 0
-LEXEME = 1
-TYPE = 0
-VALUE = 1
-OUTPUT = 0
-OUTPUT_TYPE = 1
-
-
-class Main:
-    @staticmethod
-    def main(file: str) -> None:
-        token_lexemes = Main.read_file(file)
-        interpreter = Interpreter(token_lexemes)
-        interpreter.program()
-
-    @staticmethod
-    def read_file(file: str) -> list[tuple[str, str]]:
-        with open(file, "r") as f:
-            lines = f.readlines()
-
-        token_lexemes: list[tuple[str, str]] = []
-        for line in lines:
-            split_line = line.split("\t")
-            if len(split_line) != 2:
-                continue
-
-            token, lexeme = split_line
-            token = token.strip()
-            lexeme = lexeme.strip()
-
-            # Ignore comments.
-            if token == "comment":
-                continue
-
-            token_lexemes.append((token, lexeme))
-
-        return token_lexemes
+import traceback
 
 
 class Interpreter:
+    index = 0
+
     def __init__(self, token_lexemes: list[tuple[str, str]]):
         self.symbols: list[dict[str, tuple[str, Any]]] = [
             {}
-        ]  # Start with global scope
-        self.index = 0
+        ]
         self.token_lexemes = token_lexemes
 
     def program(self) -> None:
@@ -117,6 +94,7 @@ class Interpreter:
     def declaration(self, execute: bool) -> None:
         var_type = self.consume()  # type
         var_name = self.consume()  # id
+
         if execute:
             self.declare_variable(var_type, var_name)
 
@@ -146,6 +124,8 @@ class Interpreter:
             self.while_statement(execute)
         elif self.can_consume(FIRST["return_statement"]):
             self.return_statement(execute)
+        else:
+            raise ShouldNotReachHereError()
 
     def block(self, execute: bool) -> None:
         self.open_brace()
@@ -156,9 +136,12 @@ class Interpreter:
     def print_statement(self, execute: bool) -> None:
         self.consume()  # print
         output, _ = self.expression(execute)
+        self.consume()  # semi_colon
+
         if execute:
             print(output)
-        self.consume()  # semi_colon
+            # Immeditely flush the output to ensure it is printed
+            sys.stdout.flush()
 
     def if_statement(self, execute: bool) -> None:
         self.consume()  # if
@@ -171,30 +154,29 @@ class Interpreter:
 
         if self.can_consume("else"):
             self.consume()  # else
-            # Execute else block only if the outer context is executed and condition is false
             self.statement(execute and not condition_value)
 
     def while_statement(self, execute: bool) -> None:
         self.consume()  # while
         self.consume()  # open_parenthesis
 
-        condition_start = self.index
+        # Save condition position
+        condition_start = Interpreter.index
         condition_value, _ = self.expression(execute)
         self.consume()  # close_parenthesis
 
         # Save statement position
-        statement_start = self.index
+        statement_start = Interpreter.index
 
-        # First execute the statement if needed
+        # Need to consume the statement at least once in case the while
+        # loop does not execute at all
         self.statement(execute and condition_value)
 
-        # Continue looping while condition is true
         while execute and condition_value:
             # Re-evaluate the condition
-            self.index = condition_start
+            Interpreter.index = condition_start
             condition_value, _ = self.expression(execute)
-            # Potentially the statement again
-            self.index = statement_start
+            Interpreter.index = statement_start
             self.statement(condition_value)
 
     def return_statement(self, execute: bool) -> None:
@@ -214,12 +196,8 @@ class Interpreter:
         if not execute:
             return
 
-        if not self.is_variable_declared(var_name):
-            raise VariableNotDeclaredError(var_name)
-
         var_type, _ = self.get_variable_bindings(var_name)
 
-        # Type checking for assignment
         if not self.is_compatible_assignment(var_type, result_type):
             raise AssignmentTypeError(
                 var_name, var_type, result_type, result_value
@@ -241,9 +219,12 @@ class Interpreter:
             op = self.consume()  # or_op
             # Short circuit "or" by only evaluating the next term if the
             # current one is false
-            right, right_type = self.conjunction(not output and execute)
+            evaluate_right = not output and execute
+            right, right_type = self.conjunction(evaluate_right)
 
-            if not (not output and execute):
+            if not (evaluate_right):
+                # I cannot break here because, although I won't execute the
+                # right, I still need to consume the tokens
                 continue
 
             # Type checking for logical operations
@@ -260,12 +241,12 @@ class Interpreter:
             op = self.consume()  # and_op
             # Short circuit "and" by only evaluating the next term if the
             # current one is true
-            right, right_type = self.equality(output and execute)
+            evaluate_right = output and execute
+            right, right_type = self.equality(evaluate_right)
 
-            if not (output and execute):
+            if not (evaluate_right):
                 continue
 
-            # Type checking for logical operations
             if output_type != "bool" or right_type != "bool":
                 raise BinaryOperatorTypeError(op, output_type, right_type)
 
@@ -282,7 +263,6 @@ class Interpreter:
             if not execute:
                 return output, output_type
 
-            # Type checking for equality operations
             if output_type != right_type:
                 raise BinaryOperatorTypeError(op, output_type, right_type)
 
@@ -306,10 +286,9 @@ class Interpreter:
             if not execute:
                 return output, output_type
 
-            # Type checking for relational operations
             if not (
-                output_type in ("int", "float")
-                and right_type in ("int", "float")
+                self.is_numeric(output_type)
+                and self.is_numeric(right_type)
             ):
                 raise BinaryOperatorTypeError(op, output_type, right_type)
 
@@ -337,10 +316,9 @@ class Interpreter:
             if not execute:
                 continue
 
-            # Type checking for arithmetic operations
             if not (
-                output_type in ("int", "float")
-                and right_type in ("int", "float")
+                self.is_numeric(output_type)
+                and self.is_numeric(right_type)
             ):
                 raise BinaryOperatorTypeError(op, output_type, right_type)
 
@@ -366,16 +344,14 @@ class Interpreter:
             if not execute:
                 continue
 
-            # Type checking for arithmetic operations
             if not (
-                output_type in ("int", "float")
-                and right_type in ("int", "float")
+                self.is_numeric(output_type)
+                and self.is_numeric(right_type)
             ):
                 raise BinaryOperatorTypeError(op, output_type, right_type)
 
             if op == "*":
                 output = output * right
-
             elif op == "/":
                 if right == 0:
                     raise ZeroDivisionError("Division by zero")
@@ -392,6 +368,7 @@ class Interpreter:
                 raise ShouldNotReachHereError()
 
             # Promote to float if either operand is float or output is float
+            # A float result with int operands only occurs with division
             if (
                 int(output) != output
                 or output_type == "float"
@@ -412,13 +389,13 @@ class Interpreter:
             return output, output_type
 
         if op == "-":
-            if output_type not in ("int", "float"):
+            if not self.is_numeric(output_type):
                 raise UnaryOperatorTypeError(op, output_type)
 
             output = -output
 
         elif op == "+":
-            if output_type not in ("int", "float"):
+            if not self.is_numeric(output_type):
                 raise UnaryOperatorTypeError(op, output_type)
             # Unary plus is a no-op
 
@@ -437,8 +414,10 @@ class Interpreter:
 
         return output, output_type
 
+    def is_numeric(self, var_type: str) -> bool:
+        return var_type in ("int", "float")
+
     def primary(self, execute: bool) -> tuple[Any, str]:
-        # Not checking anything related to types here because the input is said to be syntactically valid.
         if self.can_consume("id"):
             var_name = self.consume()
 
@@ -447,12 +426,8 @@ class Interpreter:
             if not execute:
                 return None, "undefined"
 
-            if not self.is_variable_declared(var_name):
-                raise VariableNotDeclaredError(var_name)
-
             var_type, var_value = self.get_variable_bindings(var_name)
 
-            # Check if variable was initialized
             if var_value is None:
                 raise UninitializedVariableError(var_name)
 
@@ -475,12 +450,6 @@ class Interpreter:
             return self.parenthesis_expression(execute)
 
         else:
-            print(
-                "my current index",
-                self.index,
-                "my current token",
-                self.get_current_token(),
-            )
             raise ShouldNotReachHereError()
 
     def parenthesis_expression(self, execute: bool) -> tuple[Any, str]:
@@ -504,14 +473,6 @@ class Interpreter:
 
         self.symbols[-1][var_name] = (var_type, None)
 
-    def is_variable_declared(self, var_name: str) -> bool:
-        # Check if variable exists in current or any parent scope
-        for scope in reversed(self.symbols):
-            if var_name in scope:
-                return True
-
-        return False
-
     def get_variable_bindings(
         self, var_name: str
     ) -> tuple[str, Union[str, None]]:
@@ -533,10 +494,10 @@ class Interpreter:
         raise VariableNotDeclaredError(var_name)
 
     def get_current_token(self) -> str:
-        return self.token_lexemes[self.index][TOKEN]
+        return self.token_lexemes[Interpreter.index][TOKEN]
 
     def can_consume(self, token: str | set[str]) -> bool:
-        cur_token = self.token_lexemes[self.index][TOKEN]
+        cur_token = self.token_lexemes[Interpreter.index][TOKEN]
         if isinstance(token, set):
             return cur_token in token
 
@@ -544,53 +505,114 @@ class Interpreter:
 
     def consume(self) -> str:
         # No need to check if index is out of bounds because input is valid
-        lexeme = self.token_lexemes[self.index][LEXEME]
-        self.index += 1
+        lexeme = self.token_lexemes[Interpreter.index][LEXEME]
+        Interpreter.index += 1
         return lexeme
 
+class Main:
+    @staticmethod
+    def main(file: str) -> None:
+        token_lexemes = Main.read_file(file)
+        interpreter = Interpreter(token_lexemes)
+        interpreter.program()
 
-class BinaryOperatorTypeError(Exception):
+    @staticmethod
+    def read_file(file: str) -> list[tuple[str, str]]:
+        with open(file, "r") as f:
+            lines = f.readlines()
+
+        token_lexemes: list[tuple[str, str]] = []
+        for i, line in enumerate(lines):
+            split_line = line.split("\t")
+            if len(split_line) != 2:
+                raise Exception(f"Input line \"{i}\" must have two tab-separated values.")
+
+            token, lexeme = split_line
+            token = token.strip()
+            lexeme = lexeme.strip()
+
+            # Ignore comments
+            if token == "comment":
+                continue
+
+            token_lexemes.append((token, lexeme))
+
+        return token_lexemes
+
+##############################################################################
+# Exceptions
+##############################################################################
+
+class ExceptionWithIndex(Exception):
+    def __init__(self, message: str, index: int):
+        super().__init__(f"At index {index} | {message}")
+
+class BinaryOperatorTypeError(ExceptionWithIndex):
     def __init__(self, op: str, left_type: str, right_type: str):
         super().__init__(
-            f'Operator "{op}" not supported between "{left_type}" and "{right_type}".'
+            f'Operator "{op}" not supported between types "{left_type}" and "{right_type}".',
+            Interpreter.index
         )
 
 
-class VariableDeclaredError(Exception):
+class VariableDeclaredError(ExceptionWithIndex):
     def __init__(self, var_name: str):
-        super().__init__(f'Variable "{var_name}" already declared.')
+        super().__init__(f'Variable "{var_name}" already declared.',
+            Interpreter.index
+        )
 
 
-class VariableNotDeclaredError(Exception):
+class VariableNotDeclaredError(ExceptionWithIndex):
     def __init__(self, var_name: str):
-        super().__init__(f'Variable "{var_name}" not declared.')
+        super().__init__(f'Variable "{var_name}" not declared.',
+            Interpreter.index
+        )
 
 
-class AssignmentTypeError(Exception):
+class AssignmentTypeError(ExceptionWithIndex):
     def __init__(
         self, var_name: str, var_type: str, value_type: str, value: Any
     ):
         super().__init__(
-            f'Cannot assign "{value_type}" "{value}" to "{var_name}" of type "{var_type}".'
+            f'Cannot assign "{value_type}" "{value}" to variable "{var_name}" of type "{var_type}".',
+            Interpreter.index
         )
 
 
-class UnaryOperatorTypeError(Exception):
+class UnaryOperatorTypeError(ExceptionWithIndex):
     def __init__(self, op: str, var_type: str):
         super().__init__(
-            f'Type mismatch: operator "{op}" not supported for "{var_type}".'
+            f'Type mismatch: operator "{op}" not supported for "{var_type}".',
+            Interpreter.index
         )
 
 
-class UninitializedVariableError(Exception):
+class UninitializedVariableError(ExceptionWithIndex):
     def __init__(self, var_name: str):
-        super().__init__(f'Variable "{var_name}" used before initialization.')
+        super().__init__(f'Variable "{var_name}" used before initialization.',
+            Interpreter.index
+        )
 
 
-class ShouldNotReachHereError(Exception):
-    def __init__(self, message: str = "Should not reach here"):
-        super().__init__(message)
+class ShouldNotReachHereError(ExceptionWithIndex):
+    def __init__(self, message: str = "Should not reach here."):
+        super().__init__(message,
+            Interpreter.index
+        )
 
+class ZeroDivisionError(ExceptionWithIndex):
+    def __init__(self, message: str):
+        super().__init__(message, Interpreter.index)
+
+##############################################################################
+# Constants
+##############################################################################
+TOKEN = 0
+LEXEME = 1
+TYPE = 0
+VALUE = 1
+OUTPUT = 0
+OUTPUT_TYPE = 1
 
 FIRST = {
     "declaration": {"type"},
@@ -613,10 +635,24 @@ FIRST = {
     "unary_op": {"-", "+", "!", "unaryOp"},
 }
 
+##############################################################################
+# Main call
+##############################################################################
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        sys.argv.append("t17.txt")
+        sys.argv.append("sample_input_1.txt")
         print("Usage: python main.py <input_file>")
         print("Using default input file: sample_input_1.txt")
 
-    Main.main(sys.argv[1])
+    try:
+        Main.main(sys.argv[1])
+
+    except ExceptionWithIndex as e:
+        if isinstance(e, ShouldNotReachHereError):
+            # Mostly for my own debugging purposes
+            print(traceback.format_exc())
+
+        else:
+            print(e)
+
+        sys.exit(1)
