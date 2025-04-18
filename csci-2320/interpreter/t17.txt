@@ -1,0 +1,206 @@
+type	int
+main	main
+(	(
+)	)
+{	{
+type	int
+id	a
+;	;
+type	int
+id	b
+;	;
+type	float
+id	f
+;	;
+type	bool
+id	bool1
+;	;
+type	bool
+id	bool2
+;	;
+
+comment	Basic unary operations
+id	a
+assignOp	=
+intLiteral	5
+;	;
+id	b
+assignOp	=
+-	-
+id	a
+;	;
+print	print
+id	b
+;	;
+
+comment	Unary plus (maintains value)
+id	b
+assignOp	=
++	+
+id	a
+;	;
+print	print
+id	b
+;	;
+
+comment	Negating a negative
+id	b
+assignOp	=
+-	-
+(	(
+-	-
+id	a
+)	)
+;	;
+print	print
+id	b
+;	;
+
+comment	Boolean negation
+id	bool1
+assignOp	=
+boolLiteral	true
+;	;
+id	bool2
+assignOp	=
+!	!
+id	bool1
+;	;
+print	print
+id	bool2
+;	;
+
+
+comment	Unary with binary operators - precedence testing
+id	a
+assignOp	=
+intLiteral	10
+;	;
+id	b
+assignOp	=
+-	-
+id	a
+multOp	*
+intLiteral	2
+;	;
+print	print
+id	b
+;	;
+
+id	b
+assignOp	=
+-	-
+(	(
+id	a
+multOp	*
+intLiteral	2
+)	)
+;	;
+print	print
+id	b
+;	;
+
+comment	Unary minus with addition
+id	b
+assignOp	=
+-	-
+id	a
+addOp	+
+intLiteral	7
+;	;
+print	print
+id	b
+;	;
+
+comment	Multiple unary operators together
+id	b
+assignOp	=
+-	-
+id	a
+;	;
+print	print
+id	b
+;	;
+
+comment	Unary with comparison operators
+id	bool1
+assignOp	=
+-	-
+id	a
+relOp	>
+-	-
+intLiteral	5
+;	;
+print	print
+id	bool1
+;	;
+
+comment	Float unary operations
+id	f
+assignOp	=
+floatLiteral	3.5
+;	;
+id	f
+assignOp	=
+-	-
+id	f
+;	;
+print	print
+id	f
+;	;
+
+comment	Boolean expressions with unary operators
+id	bool1
+assignOp	=
+boolLiteral	true
+;	;
+id	bool2
+assignOp	=
+boolLiteral	false
+;	;
+print	print
+!	!
+id	bool1
+andOp	&&
+id	bool2
+;	;
+
+print	print
+!	!
+(	(
+id	bool1
+orOp	||
+id	bool2
+)	)
+;	;
+
+comment	Unary with parenthesized expressions
+id	a
+assignOp	=
+-	-
+(	(
+intLiteral	3
+addOp	+
+intLiteral	2
+)	)
+;	;
+print	print
+id	a
+;	;
+
+comment	Complex expression with multiple unary operators
+id	a
+assignOp	=
+-	-
+intLiteral	5
+addOp	+
++	+
+intLiteral	10
+multOp	*
+-	-
+intLiteral	2
+;	;
+print	print
+id	a
+;	;
+}	}
